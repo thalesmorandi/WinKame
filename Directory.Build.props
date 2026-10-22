@@ -3,9 +3,12 @@
   <PropertyGroup>
     <Authors>Thales de Oliveira Morandi</Authors>
     <Company>morandi.cloud</Company>
+    <Product>WinKame</Product>
     <Copyright>Copyright (C) 2026 Thales de Oliveira Morandi (morandi.cloud). GPL-3.0-or-later.</Copyright>
     <PackageProjectUrl>https://winkame.morandi.cloud</PackageProjectUrl>
     <RepositoryUrl>https://github.com/thalesmorandi/WinKame</RepositoryUrl>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <!-- Product version is exactly the release version (no "+commit" suffix), the same in every signed file. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 </Project>

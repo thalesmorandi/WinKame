@@ -5,7 +5,8 @@
 #   2. publishes WinKame self-contained for x64 (no .NET install needed on the target PC),
 #   3. compiles installer\WinKame.iss with Inno Setup.
 # Requires Inno Setup 6:  winget install JRSoftware.InnoSetup
-param([string]$Version = "")
+# -SkipPublish reuses artifacts\publish as it is (the release workflow signs the app files there first).
+param([string]$Version = "", [switch]$SkipPublish)
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
@@ -19,9 +20,13 @@ Write-Host "WinKame $Version"
 & (Join-Path $PSScriptRoot "fetch-ffmpeg.ps1")
 
 $publish = Join-Path $root "artifacts\publish"
-if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
-dotnet publish src\WinKame -c Release -r win-x64 --self-contained true -o $publish -p:Version=$Version -nologo
-if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
+if ($SkipPublish) {
+    if (-not (Test-Path (Join-Path $publish "WinKame.exe"))) { throw "artifacts\publish is empty; run without -SkipPublish" }
+} else {
+    if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
+    dotnet publish src\WinKame -c Release -r win-x64 --self-contained true -o $publish -p:Version=$Version -nologo
+    if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
+}
 
 $iscc = @(
     (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),

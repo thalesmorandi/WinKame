@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration "installer" (copy of what is set in the SignPath project).
+  Input: the GitHub workflow artifact holding the Inno Setup installer, zipped by actions/upload-artifact.
+  No product-name restriction here: Inno Setup pads its version strings with spaces ("WinKame      ..."),
+  so an exact match would fail. The files inside the installer were already signed and checked by "app".
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="WinKame-Setup-x64.exe">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

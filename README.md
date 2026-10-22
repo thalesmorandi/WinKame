@@ -25,6 +25,20 @@ Zero-click file converter for Windows 10 and 11. Drag any file, tap a key, and d
 
 Everything runs offline on the PC. The interface is in English and Portuguese and follows the Windows language.
 
+## Download
+
+| | |
+| --- | --- |
+| **Installer** (recommended, no admin rights) | [WinKame-Setup-x64.exe](https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Setup-x64.exe) |
+| Portable (unzip and run `WinKame.exe`) | [WinKame-Portable-x64.zip](https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Portable-x64.zip) |
+| Checksums | [SHA256SUMS.txt](https://github.com/thalesmorandi/WinKame/releases/latest/download/SHA256SUMS.txt) |
+
+Windows 10 (2004+) and 11, 64-bit. All versions are on the [Releases page](https://github.com/thalesmorandi/WinKame/releases).
+How releases are built and signed: [Code signing policy](CODE_SIGNING_POLICY.md).
+
+**Privacy:** WinKame will not transfer any information to other networked systems unless specifically requested by
+the user. Details in the [Code signing policy](CODE_SIGNING_POLICY.md#privacy).
+
 ## Layout
 
 ```
@@ -68,11 +82,14 @@ Requires Inno Setup 6 (`winget install JRSoftware.InnoSetup`).
 .\scripts\build-installer.ps1       # -> artifacts\WinKame-Setup-<version>.exe
 ```
 
-The version comes from `<Version>` in `src/WinKame/WinKame.csproj`. The installer is not code-signed yet.
+The version comes from `<Version>` in `src/WinKame/WinKame.csproj`.
+
+Official releases are built and signed by GitHub Actions ([`release.yml`](.github/workflows/release.yml)) when a
+`vX.Y.Z` tag is pushed; see the [Code signing policy](CODE_SIGNING_POLICY.md).
 
 ## Contributing
 
-Issues and pull requests are welcome. By sending a contribution you agree that it is published under the same license as the project (GPL-3.0-or-later). Please keep the copyright header at the top of each file.
+Issues and pull requests are welcome; please follow the [code of conduct](CODE_OF_CONDUCT.md). By sending a contribution you agree that it is published under the same license as the project (GPL-3.0-or-later). Please keep the copyright header at the top of each file.
 
 ## License
 

@@ -1,8 +1,14 @@
-# Publishes a GitHub Release when a version tag is pushed (git tag v0.1.0 && git push origin v0.1.0).
+# Publishes a GitHub Release when a version tag is pushed (git tag v0.1.1 && git push origin v0.1.1).
 #
 # Assets keep the same names in every release, so the site can always link to the newest one:
 #   https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Setup-x64.exe
 #   https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Portable-x64.zip
+#
+# Code signing (SignPath Foundation, see CODE_SIGNING_POLICY.md) turns on by itself once these exist:
+#   repository variable  SIGNPATH_ORGANIZATION_ID
+#   repository secret    SIGNPATH_API_TOKEN
+# Optional variables: SIGNPATH_PROJECT_SLUG (default WinKame), SIGNPATH_SIGNING_POLICY_SLUG (default release-signing).
+# Without them the release is published unsigned, as before.
 name: Release
 
 on:
@@ -16,12 +22,16 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   release:
+    # SignPath only signs builds from GitHub-hosted runners.
     runs-on: windows-latest
+    timeout-minutes: 340
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      SIGN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,18 +60,89 @@ jobs:
           ./scripts/fetch-ffmpeg.ps1
           dotnet test WinKame.sln -c Release -nologo
 
+      - name: Publish app
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          dotnet publish src/WinKame -c Release -r win-x64 --self-contained true -o artifacts/publish -p:Version=$version -nologo
+
+      # ---- signing, stage 1: WinKame's own binaries (signed before they go into the installer) ----
+      - name: Upload app binaries for signing
+        if: env.SIGN == 'true'
+        id: upload-app
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-unsigned
+          path: |
+            artifacts/publish/WinKame.exe
+            artifacts/publish/WinKame.dll
+            artifacts/publish/WinKame.Core.dll
+          if-no-files-found: error
+
+      - name: Sign app binaries
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'WinKame' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.upload-app.outputs.artifact-id }}
+          wait-for-completion: true
+          # Release signing waits for a manual approval in SignPath.
+          wait-for-completion-timeout-in-seconds: 14400
+          output-artifact-directory: signed/app
+
+      - name: Use signed app binaries
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          Copy-Item signed/app/* artifacts/publish/ -Force
+          Get-AuthenticodeSignature artifacts/publish/WinKame.exe | Format-List Status, SignerCertificate
+
       - name: Build installer
         shell: pwsh
         run: |
           $version = $env:TAG.TrimStart('v')
-          ./scripts/build-installer.ps1 -Version $version
+          ./scripts/build-installer.ps1 -Version $version -SkipPublish
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item "artifacts/WinKame-Setup-$version.exe" "release/WinKame-Setup-x64.exe"
+
+      # ---- signing, stage 2: the installer ----
+      - name: Upload installer for signing
+        if: env.SIGN == 'true'
+        id: upload-installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-unsigned
+          path: release/WinKame-Setup-x64.exe
+          if-no-files-found: error
+
+      - name: Sign installer
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'WinKame' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 14400
+          output-artifact-directory: signed/installer
+
+      - name: Use signed installer
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          Copy-Item signed/installer/WinKame-Setup-x64.exe release/ -Force
+          Get-AuthenticodeSignature release/WinKame-Setup-x64.exe | Format-List Status, SignerCertificate
 
       - name: Package assets
         shell: pwsh
         run: |
-          $version = $env:TAG.TrimStart('v')
-          New-Item -ItemType Directory -Force release | Out-Null
-          Copy-Item "artifacts/WinKame-Setup-$version.exe" "release/WinKame-Setup-x64.exe"
           Compress-Archive -Path "artifacts/publish/*" -DestinationPath "release/WinKame-Portable-x64.zip" -CompressionLevel Optimal
           Get-ChildItem release -File | ForEach-Object {
             "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
@@ -74,18 +155,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version = $env:TAG.TrimStart('v')
+          $signing = if ($env:SIGN -eq 'true') {
+            "Signed by SignPath Foundation. Free code signing provided by SignPath.io, certificate by SignPath Foundation."
+          } else {
+            "Not code-signed yet, so Windows SmartScreen may show ""Unknown publisher"": choose *More info › Run anyway*."
+          }
           $notes = @"
           ## WinKame $version
 
           **Download:** ``WinKame-Setup-x64.exe`` (installer, no admin rights needed) or ``WinKame-Portable-x64.zip``.
           Windows 10 (2004+) and 11, 64-bit. Everything runs offline on your PC.
 
-          The installer includes FFmpeg 9.0.2 (GPLv3, gyan.dev essentials build). FFmpeg source: https://ffmpeg.org/download.html
-
-          Not code-signed yet, so Windows SmartScreen may show "Unknown publisher": choose *More info › Run anyway*.
+          $signing See the [code signing policy](https://github.com/thalesmorandi/WinKame/blob/main/CODE_SIGNING_POLICY.md).
           Verify downloads with ``SHA256SUMS.txt``.
+
+          The installer includes FFmpeg 9.0.2 (GPLv3, gyan.dev essentials build). FFmpeg source: https://ffmpeg.org/download.html
           "@
-          $exists = gh release view $env:TAG 2>$null
+          gh release view $env:TAG *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $env:TAG release/* --clobber
           } else {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration "app" (copy of what is set in the SignPath project).
+  Input: the GitHub workflow artifact with WinKame's own binaries, zipped by actions/upload-artifact.
+  Only these files are signed; third-party files (FFmpeg, .NET, libraries) are never part of this artifact.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="WinKame.exe" product-name="WinKame">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="WinKame.dll" product-name="WinKame">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="WinKame.Core.dll" product-name="WinKame">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
