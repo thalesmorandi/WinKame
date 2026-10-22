@@ -1,0 +1,14 @@
+bin/
+obj/
+.vs/
+*.user
+TestResults/
+
+# Bundled FFmpeg is downloaded by scripts/fetch-ffmpeg.ps1 (too big for git).
+src/WinKame/tools/ffmpeg/
+
+# Build output (publish folder and installer).
+artifacts/
+
+# Local Claude/editor config.
+.claude/

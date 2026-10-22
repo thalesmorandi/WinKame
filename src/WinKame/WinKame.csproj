@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- Only ship library translations for the app's own languages. -->
+    <SatelliteResourceLanguages>en;pt;pt-BR</SatelliteResourceLanguages>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>WinKame</AssemblyName>
+    <RootNamespace>WinKame</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\WinKame.ico</ApplicationIcon>
+    <Version>0.1.0</Version>
+    <Product>WinKame</Product>
+    <Description>Conversor de arquivos offline com roda de ações ao arrastar.</Description>
+    <!-- WPF's Fluent theme (ThemeMode) is marked experimental in .NET 9. -->
+    <!-- WFO0003: the DPI setting lives in app.manifest on purpose, because this is a WPF app. -->
+    <NoWarn>$(NoWarn);WPF0001;WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WinForms is only used for the tray icon; keep its names out of the global scope. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\WinKame.ico" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Bundled FFmpeg (GPLv3, separate program). Fetched by scripts\fetch-ffmpeg.ps1, not stored in git. -->
+  <ItemGroup Condition="Exists('tools\ffmpeg\ffmpeg.exe')">
+    <Content Include="tools\ffmpeg\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="WarnMissingFfmpeg" BeforeTargets="Build" Condition="!Exists('tools\ffmpeg\ffmpeg.exe')">
+    <Warning Text="FFmpeg não está em src\WinKame\tools\ffmpeg. Rode scripts\fetch-ffmpeg.ps1 para embuti-lo; sem ele, áudio e vídeo pedem instalação." />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinKame.Core\WinKame.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- T("...") translates interface text everywhere. -->
+    <Using Include="WinKame.Core.L" Static="true" />
+  </ItemGroup>
+
+</Project>

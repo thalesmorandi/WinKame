@@ -1,0 +1,23 @@
+WinKame includes or uses the following third-party software.
+
+FFmpeg 9.0.2 (essentials build by gyan.dev)
+  License: GNU General Public License v3 (the build enables GPL components such as x264).
+  Shipped as a separate program (tools/ffmpeg/ffmpeg.exe), called from the command line.
+  Source code: https://ffmpeg.org/download.html  Build: https://www.gyan.dev/ffmpeg/builds/
+  Full license text: tools/ffmpeg/LICENSE.txt
+
+Magick.NET (ImageMagick)          Apache License 2.0   https://github.com/dlemstra/Magick.NET
+PDFsharp 6.2.4                    MIT                  https://github.com/empira/PDFsharp
+PdfPig                            Apache License 2.0   https://github.com/UglyToad/PdfPig
+DocumentFormat.OpenXml            MIT                  https://github.com/dotnet/Open-XML-SDK
+HtmlToOpenXml                     MIT                  https://github.com/onizet/html2openxml
+Markdig                           BSD 2-Clause         https://github.com/xoofx/markdig
+ReverseMarkdown                   MIT                  https://github.com/mysticmind/reversemarkdown-net
+AngleSharp                        MIT                  https://github.com/AngleSharp/AngleSharp
+RtfPipe                           MIT                  https://github.com/erdomke/RtfPipe
+ClosedXML                         MIT                  https://github.com/ClosedXML/ClosedXML
+SharpCompress                     MIT                  https://github.com/adamhathcock/sharpcompress
+Microsoft.Web.WebView2 (SDK)      Microsoft WebView2 SDK license (BSD-style)  https://aka.ms/webview2
+
+Used when installed on the computer (not shipped): Microsoft Edge WebView2 Runtime,
+Microsoft Office, LibreOffice (MPL 2.0), Ghostscript (AGPL).

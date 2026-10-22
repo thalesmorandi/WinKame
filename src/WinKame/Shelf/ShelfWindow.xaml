@@ -1,0 +1,68 @@
+<Window x:Class="WinKame.Shelf.ShelfWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:WinKame"
+        Title="{l:T 'WinKame - prateleira'}"
+        Width="250" Height="380" MinHeight="160"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResizeWithGrip" ShowInTaskbar="False" Topmost="True" AllowDrop="True">
+    <Border Margin="10" CornerRadius="12" Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource StrokeBrush}" BorderThickness="1">
+        <DockPanel>
+            <DockPanel x:Name="Header" DockPanel.Dock="Top" Margin="10,8,6,4" Background="Transparent" MouseLeftButtonDown="Header_MouseDown">
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Content="&#xE711;" ToolTip="{l:T 'Fechar'}" Click="Close_Click" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Content="&#xE74D;" ToolTip="{l:T 'Esvaziar'}" Click="Clear_Click" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Content="&#xE72A;" ToolTip="{l:T 'Prender na borda direita'}" Click="DockRight_Click" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Content="&#xE72B;" ToolTip="{l:T 'Prender na borda esquerda'}" Click="DockLeft_Click" />
+                <TextBlock Text="{l:T 'Prateleira'}" Foreground="{StaticResource TextBrush}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+            </DockPanel>
+            <Border x:Name="DragAll" DockPanel.Dock="Top" Margin="10,2,10,6" Padding="8,6" CornerRadius="8"
+                    Background="{StaticResource AccentSoftBrush}" Cursor="Hand" ToolTip="{l:T 'Arraste para levar todos os itens'}"
+                    PreviewMouseLeftButtonDown="DragAll_Down" PreviewMouseMove="DragAll_Move">
+                <TextBlock x:Name="DragAllText" Foreground="{StaticResource TextBrush}" FontSize="12" HorizontalAlignment="Center" />
+            </Border>
+            <Grid>
+                <TextBlock x:Name="Empty" Text="{l:T 'Arraste arquivos para cá para guardar e depois soltar em outro lugar.'}"
+                           Foreground="{StaticResource TextDimBrush}" TextWrapping="Wrap" TextAlignment="Center"
+                           VerticalAlignment="Center" Margin="20" FontSize="12" />
+                <ListBox x:Name="Items" Background="Transparent" BorderThickness="0" SelectionMode="Extended"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="4,0,4,8"
+                         PreviewMouseLeftButtonDown="Items_Down" PreviewMouseMove="Items_Move" KeyDown="Items_KeyDown">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd" CornerRadius="7" Padding="8,5" Margin="2,1" Background="Transparent">
+                                            <ContentPresenter />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <Image DockPanel.Dock="Left" Source="{Binding Icon}" Width="24" Height="24" Margin="0,0,8,0" />
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Folder}" FontSize="10.5" Foreground="{StaticResource TextDimBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </DockPanel>
+    </Border>
+</Window>
