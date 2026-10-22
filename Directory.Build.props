@@ -1,0 +1,11 @@
+<Project>
+  <!-- Authorship and branding shared by every project (shown in the file properties of the .exe and .dll). -->
+  <PropertyGroup>
+    <Authors>Thales de Oliveira Morandi</Authors>
+    <Company>morandi.cloud</Company>
+    <Copyright>Copyright (C) 2026 Thales de Oliveira Morandi (morandi.cloud). GPL-3.0-or-later.</Copyright>
+    <PackageProjectUrl>https://winkame.morandi.cloud</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/thalesmorandi/WinKame</RepositoryUrl>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

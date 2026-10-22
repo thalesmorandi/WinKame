@@ -1,3 +1,6 @@
+// WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+// SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
+
 namespace WinKame.Core;
 
 public static partial class L
@@ -485,6 +488,11 @@ public static partial class L
         ["Tudo é registrado só para o seu usuário, sem precisar de administrador."] = "Everything is registered for your user only, with no administrator rights needed.",
         ["Sobre"] = "About",
         ["Versão"] = "Version",
+        ["Um produto da"] = "A product of",
+        ["Criado por Thales de Oliveira Morandi."] = "Created by Thales de Oliveira Morandi.",
+        ["Copyright (C) 2026 Thales de Oliveira Morandi. O WinKame é software livre: você pode redistribuí-lo e modificá-lo sob os termos da GNU GPL versão 3 ou posterior. Ele é distribuído SEM NENHUMA GARANTIA."] = "Copyright (C) 2026 Thales de Oliveira Morandi. WinKame is free software: you can redistribute it and/or modify it under the terms of the GNU GPL version 3 or later. It comes WITHOUT ANY WARRANTY.",
+        ["Código-fonte no GitHub"] = "Source code on GitHub",
+        ["Licença"] = "License",
         ["Conversor de arquivos offline para Windows. Arraste, toque uma tecla e solte numa fatia da roda. Tudo acontece no seu computador: nenhum arquivo é enviado para a internet."] = "Offline file converter for Windows. Drag, tap a key and drop on a slice of the wheel. Everything happens on your computer: no file is sent to the internet.",
         ["Inclui FFmpeg (GPLv3, build de gyan.dev), Magick.NET (ImageMagick), PDFsharp, PdfPig, Open XML SDK, HtmlToOpenXml, Markdig, ReverseMarkdown, AngleSharp, RtfPipe, ClosedXML e SharpCompress. Usa o WebView2 do Windows e, quando instalados, o Microsoft Office, o LibreOffice e o Ghostscript. Licenças em THIRD-PARTY-NOTICES.txt."] = "Includes FFmpeg (GPLv3, gyan.dev build), Magick.NET (ImageMagick), PDFsharp, PdfPig, Open XML SDK, HtmlToOpenXml, Markdig, ReverseMarkdown, AngleSharp, RtfPipe, ClosedXML and SharpCompress. Uses Windows' WebView2 and, when installed, Microsoft Office, LibreOffice and Ghostscript. Licenses in THIRD-PARTY-NOTICES.txt.",
         ["Abrir pasta de configurações"] = "Open settings folder",

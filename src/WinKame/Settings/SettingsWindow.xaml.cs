@@ -1,3 +1,6 @@
+// WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+// SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
+
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
@@ -356,6 +359,20 @@ public partial class SettingsWindow : Window
             OutFolder.Text = dlg.FolderName;
             OutCustom.IsChecked = true;
         }
+    }
+
+    private void Link_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        e.Handled = true;
+    }
+
+    // Opens a file that ships next to WinKame.exe (LICENSE.txt, NOTICE.txt).
+    private void LocalFile_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        var path = System.IO.Path.Combine(AppContext.BaseDirectory, e.Uri.OriginalString);
+        if (System.IO.File.Exists(path)) Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        e.Handled = true;
     }
 
     private void OpenSettingsFolder_Click(object sender, RoutedEventArgs e) =>

@@ -1,0 +1,38 @@
+# Builds WinKame and runs the test suite on every push and pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # The bundled FFmpeg (~115 MB download) is cached between runs.
+      - name: Cache FFmpeg
+        uses: actions/cache@v4
+        with:
+          path: src/WinKame/tools/ffmpeg
+          key: ffmpeg-${{ hashFiles('scripts/fetch-ffmpeg.ps1') }}
+
+      - name: Fetch FFmpeg
+        shell: pwsh
+        run: ./scripts/fetch-ffmpeg.ps1
+
+      - name: Build
+        run: dotnet build WinKame.sln -c Release -nologo
+
+      - name: Test
+        run: dotnet test WinKame.sln -c Release --no-build -nologo --logger "console;verbosity=normal"

@@ -1,3 +1,5 @@
+# WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+# SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
 # Downloads the FFmpeg build that WinKame ships with and places it in src/WinKame/tools/ffmpeg.
 # The binary is not kept in git; run this once before building a release.
 #

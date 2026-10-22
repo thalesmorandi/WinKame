@@ -1,3 +1,5 @@
+# WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+# SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
 # Builds artifacts\WinKame-Setup-<version>.exe:
 #   1. downloads the bundled FFmpeg (once),
 #   2. publishes WinKame self-contained for x64 (no .NET install needed on the target PC),

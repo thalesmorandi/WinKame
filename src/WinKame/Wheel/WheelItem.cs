@@ -1,3 +1,6 @@
+// WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+// SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
+
 namespace WinKame.Wheel;
 
 public enum WheelKind

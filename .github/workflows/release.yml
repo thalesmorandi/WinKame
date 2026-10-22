@@ -1,0 +1,93 @@
+# Publishes a GitHub Release when a version tag is pushed (git tag v0.1.0 && git push origin v0.1.0).
+#
+# Assets keep the same names in every release, so the site can always link to the newest one:
+#   https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Setup-x64.exe
+#   https://github.com/thalesmorandi/WinKame/releases/latest/download/WinKame-Portable-x64.zip
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache FFmpeg
+        uses: actions/cache@v4
+        with:
+          path: src/WinKame/tools/ffmpeg
+          key: ffmpeg-${{ hashFiles('scripts/fetch-ffmpeg.ps1') }}
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup -y --no-progress
+          }
+
+      - name: Test
+        shell: pwsh
+        run: |
+          ./scripts/fetch-ffmpeg.ps1
+          dotnet test WinKame.sln -c Release -nologo
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          ./scripts/build-installer.ps1 -Version $version
+
+      - name: Package assets
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item "artifacts/WinKame-Setup-$version.exe" "release/WinKame-Setup-x64.exe"
+          Compress-Archive -Path "artifacts/publish/*" -DestinationPath "release/WinKame-Portable-x64.zip" -CompressionLevel Optimal
+          Get-ChildItem release -File | ForEach-Object {
+            "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
+          } | Set-Content release/SHA256SUMS.txt -Encoding ascii
+          Get-ChildItem release | Format-Table Name, Length
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          $notes = @"
+          ## WinKame $version
+
+          **Download:** ``WinKame-Setup-x64.exe`` (installer, no admin rights needed) or ``WinKame-Portable-x64.zip``.
+          Windows 10 (2004+) and 11, 64-bit. Everything runs offline on your PC.
+
+          The installer includes FFmpeg 9.0.2 (GPLv3, gyan.dev essentials build). FFmpeg source: https://ffmpeg.org/download.html
+
+          Not code-signed yet, so Windows SmartScreen may show "Unknown publisher": choose *More info › Run anyway*.
+          Verify downloads with ``SHA256SUMS.txt``.
+          "@
+          $exists = gh release view $env:TAG 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG release/* --clobber
+          } else {
+            gh release create $env:TAG release/* --title "WinKame $version" --notes $notes --generate-notes
+          }

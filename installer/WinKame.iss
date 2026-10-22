@@ -1,4 +1,6 @@
-﻿; WinKame installer (Inno Setup 6). Build with scripts\build-installer.ps1.
+﻿; WinKame, a morandi.cloud product. Copyright (C) 2026 Thales de Oliveira Morandi.
+; SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
+; WinKame installer (Inno Setup 6). Build with scripts\build-installer.ps1.
 ; Per-user install: no administrator rights, everything under the user's profile and HKCU.
 
 #ifndef AppVersion
@@ -13,8 +15,16 @@ AppId={{8C6B2E3A-5D1F-4F7B-9E2A-3B6D7C1A9F40}
 AppName=WinKame
 AppVersion={#AppVersion}
 AppVerName=WinKame {#AppVersion}
-AppPublisher=WinKame
+AppPublisher=morandi.cloud
+AppPublisherURL=https://morandi.cloud
+AppSupportURL=https://github.com/thalesmorandi/WinKame/issues
+AppUpdatesURL=https://winkame.morandi.cloud
+AppCopyright=Copyright (C) 2026 Thales de Oliveira Morandi (morandi.cloud)
 VersionInfoVersion={#AppVersion}
+VersionInfoCompany=morandi.cloud
+VersionInfoCopyright=Copyright (C) 2026 Thales de Oliveira Morandi
+VersionInfoDescription=WinKame Setup
+LicenseFile=..\LICENSE
 DefaultDirName={autopf}\WinKame
 DefaultGroupName=WinKame
 DisableProgramGroupPage=yes

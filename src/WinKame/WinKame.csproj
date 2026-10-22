@@ -33,6 +33,8 @@
   <ItemGroup>
     <Resource Include="Assets\WinKame.ico" />
     <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\NOTICE" Link="NOTICE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Bundled FFmpeg (GPLv3, separate program). Fetched by scripts\fetch-ffmpeg.ps1, not stored in git. -->

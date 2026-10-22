@@ -203,11 +203,25 @@
             <TabItem Header="{l:T 'Sobre'}" Tag="about">
                 <StackPanel Margin="20,6,20,20" MaxWidth="560" HorizontalAlignment="Left">
                     <TextBlock Text="WinKame" FontSize="28" FontWeight="SemiBold" />
-                    <TextBlock x:Name="VersionText" Opacity="0.7" Margin="0,2,0,14" />
+                    <TextBlock x:Name="VersionText" Opacity="0.7" Margin="0,2,0,6" />
+                    <TextBlock Margin="0,0,0,2" FontWeight="SemiBold">
+                        <Run Text="{l:T 'Um produto da'}" />
+                        <Hyperlink NavigateUri="https://morandi.cloud" RequestNavigate="Link_RequestNavigate">morandi.cloud</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Text="{l:T 'Criado por Thales de Oliveira Morandi.'}" Opacity="0.8" Margin="0,0,0,14" />
                     <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
                                Text="{l:T 'Conversor de arquivos offline para Windows. Arraste, toque uma tecla e solte numa fatia da roda. Tudo acontece no seu computador: nenhum arquivo é enviado para a internet.'}" />
                     <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="12"
                                Text="{l:T 'Inclui FFmpeg (GPLv3, build de gyan.dev), Magick.NET (ImageMagick), PDFsharp, PdfPig, Open XML SDK, HtmlToOpenXml, Markdig, ReverseMarkdown, AngleSharp, RtfPipe, ClosedXML e SharpCompress. Usa o WebView2 do Windows e, quando instalados, o Microsoft Office, o LibreOffice e o Ghostscript. Licenças em THIRD-PARTY-NOTICES.txt.'}" />
+                    <TextBlock TextWrapping="Wrap" Margin="0,14,0,0" FontSize="12" Opacity="0.85"
+                               Text="{l:T 'Copyright (C) 2026 Thales de Oliveira Morandi. O WinKame é software livre: você pode redistribuí-lo e modificá-lo sob os termos da GNU GPL versão 3 ou posterior. Ele é distribuído SEM NENHUMA GARANTIA.'}" />
+                    <TextBlock Margin="0,8,0,0" FontSize="12">
+                        <Hyperlink NavigateUri="https://github.com/thalesmorandi/WinKame" RequestNavigate="Link_RequestNavigate"><Run Text="{l:T 'Código-fonte no GitHub'}" /></Hyperlink>
+                        <Run Text="  ·  " />
+                        <Hyperlink NavigateUri="LICENSE.txt" RequestNavigate="LocalFile_RequestNavigate"><Run Text="{l:T 'Licença'}" /></Hyperlink>
+                        <Run Text="  ·  " />
+                        <Hyperlink NavigateUri="https://winkame.morandi.cloud" RequestNavigate="Link_RequestNavigate">winkame.morandi.cloud</Hyperlink>
+                    </TextBlock>
                     <Button Content="{l:T 'Abrir pasta de configurações'}" HorizontalAlignment="Left" Margin="0,16,0,0" Click="OpenSettingsFolder_Click" />
                 </StackPanel>
             </TabItem>
