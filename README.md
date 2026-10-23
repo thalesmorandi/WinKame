@@ -35,6 +35,7 @@ Everything runs offline on the PC. The interface is in English and Portuguese an
 
 Windows 10 (2004+) and 11, 64-bit. All versions are on the [Releases page](https://github.com/thalesmorandi/WinKame/releases).
 How releases are built and signed: [Code signing policy](CODE_SIGNING_POLICY.md).
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 
 **Privacy:** WinKame will not transfer any information to other networked systems unless specifically requested by
 the user. Details in the [Code signing policy](CODE_SIGNING_POLICY.md#privacy).
