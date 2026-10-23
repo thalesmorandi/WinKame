@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX manifest for the Microsoft Store build. scripts/build-msix.ps1 fills the $...$ values.
+  Identity Name, Publisher and PublisherDisplayName must match Partner Center
+  (Product management › Product identity) for the Store to accept the upload.
+  The Store signs the package itself, so this build needs no code signing certificate.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop rescap">
+
+  <Identity Name="$IdentityName$" Publisher="$Publisher$" Version="$Version$" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>WinKame</DisplayName>
+    <PublisherDisplayName>$PublisherDisplayName$</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Offline file converter: drag a file, tap a key, pick the format on the wheel.</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+    <Resource Language="pt-br" />
+  </Resources>
+
+  <Applications>
+    <Application Id="WinKame" Executable="WinKame.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="WinKame"
+        Description="Offline file converter: drag a file, tap a key, pick the format on the wheel."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Same default as the .exe installer: the wheel only works while WinKame runs. Users can turn it off
+             in WinKame's settings or in Windows Settings › Apps › Startup. -->
+        <desktop:Extension Category="windows.startupTask" Executable="WinKame.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="WinKameStartup" Enabled="true" DisplayName="WinKame" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- A regular desktop app (watches drags to open the wheel, runs FFmpeg and Office for conversions). -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

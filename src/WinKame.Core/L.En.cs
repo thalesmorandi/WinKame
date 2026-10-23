@@ -488,6 +488,8 @@ public static partial class L
         ["Menu Enviar para › WinKame"] = "Send to › WinKame menu",
         ["Bom para seleções grandes: envia todos os arquivos de uma vez."] = "Good for large selections: sends every file at once.",
         ["Tudo é registrado só para o seu usuário, sem precisar de administrador."] = "Everything is registered for your user only, with no administrator rights needed.",
+        ["ative o WinKame em Configurações › Aplicativos › Inicialização."] = "turn WinKame on in Settings › Apps › Startup.",
+        ["Para desligar depois, também dá em Configurações › Aplicativos › Inicialização."] = "You can also turn it off later in Settings › Apps › Startup.",
         ["Sobre"] = "About",
         ["Versão"] = "Version",
         ["Um produto da"] = "A product of",

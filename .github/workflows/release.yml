@@ -140,6 +140,27 @@ jobs:
           Copy-Item signed/installer/WinKame-Setup-x64.exe release/ -Force
           Get-AuthenticodeSignature release/WinKame-Setup-x64.exe | Format-List Status, SignerCertificate
 
+      # ---- Microsoft Store package (MSIX). The Store signs it, so it is not a release download. ----
+      # Turns on once the repository variables MSIX_IDENTITY_NAME and MSIX_PUBLISHER hold the values
+      # from Partner Center (Product management > Product identity). See packaging/msix/README.md.
+      - name: Build MSIX for the Microsoft Store
+        if: vars.MSIX_IDENTITY_NAME != ''
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          ./scripts/build-msix.ps1 -Version $version -SkipPublish `
+            -IdentityName "${{ vars.MSIX_IDENTITY_NAME }}" `
+            -Publisher "${{ vars.MSIX_PUBLISHER }}" `
+            -PublisherDisplayName "${{ vars.MSIX_PUBLISHER_DISPLAY_NAME || 'morandi.cloud' }}"
+
+      - name: Keep MSIX for Partner Center
+        if: vars.MSIX_IDENTITY_NAME != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinKame-msix-store
+          path: artifacts/WinKame-*-x64.msix
+          if-no-files-found: error
+
       - name: Package assets
         shell: pwsh
         run: |

@@ -90,6 +90,12 @@ public partial class SettingsWindow : Window
         StartWithWindows.IsChecked = ShellIntegration.StartupInstalled;
         ContextMenuCheck.IsChecked = ShellIntegration.ContextMenuInstalled;
         SendTo.IsChecked = ShellIntegration.SendToInstalled;
+        if (ShellIntegration.IsPackaged)
+        {
+            // The Microsoft Store build can't add Explorer menus; the wheel is the way in.
+            foreach (UIElement el in new UIElement[] { ContextMenuCheck, ContextMenuHint, SendTo, SendToHint }) el.Visibility = Visibility.Collapsed;
+            IntegrationNote.Text = T("Para desligar depois, também dá em Configurações › Aplicativos › Inicialização.");
+        }
 
         if (tab is not null)
         {
@@ -413,8 +419,11 @@ public partial class SettingsWindow : Window
         try
         {
             if (StartWithWindows.IsChecked != ShellIntegration.StartupInstalled) ShellIntegration.SetStartup(StartWithWindows.IsChecked == true);
-            if (ContextMenuCheck.IsChecked != ShellIntegration.ContextMenuInstalled) ShellIntegration.SetContextMenu(ContextMenuCheck.IsChecked == true);
-            if (SendTo.IsChecked != ShellIntegration.SendToInstalled) ShellIntegration.SetSendTo(SendTo.IsChecked == true);
+            if (!ShellIntegration.IsPackaged)
+            {
+                if (ContextMenuCheck.IsChecked != ShellIntegration.ContextMenuInstalled) ShellIntegration.SetContextMenu(ContextMenuCheck.IsChecked == true);
+                if (SendTo.IsChecked != ShellIntegration.SendToInstalled) ShellIntegration.SetSendTo(SendTo.IsChecked == true);
+            }
         }
         catch (Exception ex)
         {

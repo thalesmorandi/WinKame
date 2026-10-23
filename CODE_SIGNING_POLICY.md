@@ -18,6 +18,9 @@ Third-party components shipped with WinKame (the .NET runtime, FFmpeg, ImageMagi
 [`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt)) are included as published by their own projects and are **not**
 signed by WinKame.
 
+The Microsoft Store build (MSIX, see [`packaging/msix`](packaging/msix/README.md)) is built by the same workflow from
+the same signed app files and is signed by Microsoft when it is published in the Store.
+
 ## How releases are built and signed
 
 1. A release starts when a maintainer pushes a version tag (`vX.Y.Z`).

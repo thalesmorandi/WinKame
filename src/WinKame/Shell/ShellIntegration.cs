@@ -2,13 +2,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE and NOTICE.
 
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using Windows.ApplicationModel;
 
 namespace WinKame.Shell;
 
-/// <summary>Per-user (no admin) hooks into Explorer: context menu, Send To and start with Windows.</summary>
-internal static class ShellIntegration
+/// <summary>
+/// Per-user (no admin) hooks into Explorer: context menu, Send To and start with Windows.
+/// The Microsoft Store (MSIX) build only offers start with Windows, through the package's StartupTask:
+/// a packaged app's registry and Send To writes are private to it, so Explorer would never see them.
+/// </summary>
+internal static partial class ShellIntegration
 {
+    /// <summary>Same id as the StartupTask in packaging/msix/AppxManifest.xml.</summary>
+    private const string StartupTaskId = "WinKameStartup";
+
     private const string VerbName = "WinKame";
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
@@ -78,10 +87,31 @@ internal static class ShellIntegration
         }
     }
 
+    /// <summary>True when running as the MSIX package (Microsoft Store build).</summary>
+    public static bool IsPackaged { get; } = DetectPackage();
+
+    private static bool DetectPackage()
+    {
+        var length = 0u;
+        // ERROR_INSUFFICIENT_BUFFER means there is a package name to return; APPMODEL_ERROR_NO_PACKAGE means none.
+        return GetCurrentPackageFullName(ref length, 0) == 122;
+    }
+
+    [LibraryImport("kernel32.dll")]
+    private static partial int GetCurrentPackageFullName(ref uint packageFullNameLength, nint packageFullName);
+
+    private static StartupTask PackageStartupTask() =>
+        Task.Run(async () => await StartupTask.GetAsync(StartupTaskId)).GetAwaiter().GetResult();
+
     public static bool StartupInstalled
     {
         get
         {
+            if (IsPackaged)
+            {
+                return PackageStartupTask().State is StartupTaskState.Enabled or StartupTaskState.EnabledByPolicy;
+            }
+
             using var k = Registry.CurrentUser.OpenSubKey(RunKey);
             return k?.GetValue(VerbName) is string s && s.Contains(Exe, StringComparison.OrdinalIgnoreCase);
         }
@@ -89,6 +119,22 @@ internal static class ShellIntegration
 
     public static void SetStartup(bool on)
     {
+        if (IsPackaged)
+        {
+            var task = PackageStartupTask();
+            if (!on)
+            {
+                task.Disable();
+                return;
+            }
+            var state = Task.Run(async () => await task.RequestEnableAsync()).GetAwaiter().GetResult();
+            if (state is not (StartupTaskState.Enabled or StartupTaskState.EnabledByPolicy))
+            {
+                // Once the user turns it off in Windows, only Windows can turn it back on.
+                throw new InvalidOperationException(T("ative o WinKame em Configurações › Aplicativos › Inicialização."));
+            }
+            return;
+        }
         using var k = Registry.CurrentUser.CreateSubKey(RunKey);
         if (on) k.SetValue(VerbName, $"\"{Exe}\" --background");
         else k.DeleteValue(VerbName, throwOnMissingValue: false);

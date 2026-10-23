@@ -189,12 +189,12 @@
                         <TextBlock Text="{l:T 'Integração com o Windows'}" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,12" />
                         <CheckBox x:Name="StartWithWindows" Content="{l:T 'Iniciar com o Windows'}" />
                         <CheckBox x:Name="ContextMenuCheck" Content="{l:T 'Menu do botão direito no Explorer: Abrir no WinKame'}" Margin="0,12,0,0" />
-                        <TextBlock TextWrapping="Wrap" Opacity="0.65" Margin="26,4,0,0" FontSize="12"
+                        <TextBlock x:Name="ContextMenuHint" TextWrapping="Wrap" Opacity="0.65" Margin="26,4,0,0" FontSize="12"
                                    Text="{l:T 'No Windows 11 fica em Mostrar mais opções (Shift+F10). A roda abre no cursor e funciona com clique.'}" />
                         <CheckBox x:Name="SendTo" Content="{l:T 'Menu Enviar para › WinKame'}" Margin="0,12,0,0" />
-                        <TextBlock TextWrapping="Wrap" Opacity="0.65" Margin="26,4,0,0" FontSize="12"
+                        <TextBlock x:Name="SendToHint" TextWrapping="Wrap" Opacity="0.65" Margin="26,4,0,0" FontSize="12"
                                    Text="{l:T 'Bom para seleções grandes: envia todos os arquivos de uma vez.'}" />
-                        <TextBlock Text="{l:T 'Tudo é registrado só para o seu usuário, sem precisar de administrador.'}" Opacity="0.65" Margin="0,20,0,0" TextWrapping="Wrap" />
+                        <TextBlock x:Name="IntegrationNote" Text="{l:T 'Tudo é registrado só para o seu usuário, sem precisar de administrador.'}" Opacity="0.65" Margin="0,20,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

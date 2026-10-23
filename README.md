@@ -46,7 +46,8 @@ src/WinKame.Core     Formats, conversion engines, settings, localization (no UI)
 src/WinKame          WPF app: drag watcher, wheel, dialogs, tray, Explorer integration
 tests/WinKame.Tests  xUnit tests
 installer/           Inno Setup script (per-user install, no admin)
-scripts/             fetch-ffmpeg.ps1, build-installer.ps1
+scripts/             fetch-ffmpeg.ps1, build-installer.ps1, build-msix.ps1
+packaging/msix/      Microsoft Store manifest and logos
 ```
 
 ## Build and run
@@ -86,6 +87,15 @@ The version comes from `<Version>` in `src/WinKame/WinKame.csproj`.
 
 Official releases are built and signed by GitHub Actions ([`release.yml`](.github/workflows/release.yml)) when a
 `vX.Y.Z` tag is pushed; see the [Code signing policy](CODE_SIGNING_POLICY.md).
+
+## Microsoft Store (MSIX)
+
+```powershell
+.\scripts\build-msix.ps1              # -> artifacts\WinKame-<version>-x64.msix
+```
+
+Same app, packaged for the Microsoft Store, which signs it. It has no Explorer context menu or Send To; see
+[`packaging/msix/README.md`](packaging/msix/README.md) for the differences and how to submit it.
 
 ## Contributing
 
