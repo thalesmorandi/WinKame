@@ -17,7 +17,7 @@
                 <TextBlock Text="{l:T 'Prateleira'}" Foreground="{StaticResource TextBrush}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
             </DockPanel>
             <Border x:Name="DragAll" DockPanel.Dock="Top" Margin="10,2,10,6" Padding="8,6" CornerRadius="8"
-                    Background="{StaticResource AccentSoftBrush}" Cursor="Hand" ToolTip="{l:T 'Arraste para levar todos os itens'}"
+                    Background="{DynamicResource AccentSoftBrush}" Cursor="Hand" ToolTip="{l:T 'Arraste para levar todos os itens'}"
                     PreviewMouseLeftButtonDown="DragAll_Down" PreviewMouseMove="DragAll_Move">
                 <TextBlock x:Name="DragAllText" Foreground="{StaticResource TextBrush}" FontSize="12" HorizontalAlignment="Center" />
             </Border>
@@ -42,7 +42,7 @@
                                                 <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
                                             </Trigger>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentSoftBrush}" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>

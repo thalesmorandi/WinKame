@@ -65,7 +65,7 @@ public sealed class ImageRegionDialog : Window
         _sel = new Rectangle
         {
             Stroke = Brushes.White, StrokeThickness = 1.5, StrokeDashArray = [4, 3], IsHitTestVisible = false,
-            Fill = redact ? new SolidColorBrush(Color.FromArgb(90, 255, 138, 31)) : Brushes.Transparent,
+            Fill = redact ? new SolidColorBrush(Accent.WithAlpha(Accent.Current, 90)) : Brushes.Transparent,
         };
         _canvas.Children.Add(_sel);
         _canvas.MouseLeftButtonDown += OnDown;
@@ -269,7 +269,7 @@ public sealed class ImageRegionDialog : Window
             var box = new Rectangle
             {
                 Width = r.Width, Height = r.Height, Tag = "area", IsHitTestVisible = false,
-                Fill = new SolidColorBrush(Color.FromArgb(110, 255, 138, 31)), Stroke = Brushes.White, StrokeThickness = 1,
+                Fill = new SolidColorBrush(Accent.WithAlpha(Accent.Current, 110)), Stroke = Brushes.White, StrokeThickness = 1,
             };
             Canvas.SetLeft(box, r.X);
             Canvas.SetTop(box, r.Y);

@@ -13,6 +13,9 @@ public sealed class AppSettings
     /// <summary>Interface language: "auto" (Windows' language), "pt" or "en".</summary>
     public string Language { get; set; } = "auto";
 
+    /// <summary>Highlight color of the wheel, jobs card and shelf: "#RRGGBB", or "system" to follow Windows.</summary>
+    public string AccentColor { get; set; } = "#FF8A1F";
+
     /// <summary>Key tapped during a drag for each wheel: Shift, Ctrl, Alt, Space, Tab or None.</summary>
     public string KeyConvert { get; set; } = "Shift";
     public string KeyTools { get; set; } = "Ctrl";

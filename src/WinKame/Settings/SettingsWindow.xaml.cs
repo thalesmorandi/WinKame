@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Input;
 using Microsoft.Win32;
 using WinKame.Actions;
 using WinKame.Core;
@@ -42,6 +44,20 @@ public partial class SettingsWindow : Window
         Reveal.IsChecked = _s.RevealWhenDone;
         LanguageBox.SelectedValue = _s.Language is "pt" or "en" ? _s.Language : "auto";
         LanguageBox.SelectionChanged += (_, _) => LanguageNote.Visibility = Visibility.Visible;
+        _accent = _accentAtOpen = string.IsNullOrWhiteSpace(_s.AccentColor) ? Accent.Default : _s.AccentColor;
+        BuildAccentSwatches();
+        AccentHex.Text = Accent.Hex;
+        AccentHex.TextChanged += (_, _) =>
+        {
+            if (_updatingHex) return;
+            var text = AccentHex.Text.Trim();
+            if (Accent.TryParse(text, out _)) SetAccent(text.StartsWith('#') ? text.ToUpperInvariant() : "#" + text.ToUpperInvariant(), fromHex: true);
+        };
+        // The color previews live while picking; closing without saving puts the old one back.
+        Closed += (_, _) =>
+        {
+            if (!_saved) Accent.Apply(_accentAtOpen);
+        };
 
         // Keys
         void SetupKey(ComboBox box, string value)
@@ -386,6 +402,62 @@ public partial class SettingsWindow : Window
 
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
 
+    private string _accent = Accent.Default;
+    private string _accentAtOpen = Accent.Default;
+    private bool _saved, _updatingHex;
+    private readonly List<(Border Swatch, string Value)> _swatches = [];
+
+    private void BuildAccentSwatches()
+    {
+        foreach (var hex in Accent.Presets)
+        {
+            AddSwatch(hex, Accent.Resolve(hex), hex == Accent.Default ? T("Laranja WinKame (padrão)") : hex, null);
+        }
+        AddSwatch(Accent.FollowWindows, Accent.WindowsAccent() ?? Accent.Resolve(Accent.Default), T("Seguir a cor de destaque do Windows"), "Windows");
+        MarkSwatch();
+    }
+
+    private void AddSwatch(string value, Color color, string tip, string? label)
+    {
+        var swatch = new Border
+        {
+            Height = 28, MinWidth = 28, CornerRadius = new CornerRadius(14), Margin = new Thickness(0, 0, 8, 8),
+            Background = new SolidColorBrush(color), BorderThickness = new Thickness(2), Cursor = Cursors.Hand, ToolTip = tip,
+        };
+        if (label is not null)
+        {
+            swatch.Padding = new Thickness(10, 0, 10, 0);
+            swatch.Child = new TextBlock
+            {
+                Text = label, FontSize = 11, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center,
+                Foreground = new SolidColorBrush(Accent.OnAccent(color)),
+            };
+        }
+        swatch.MouseLeftButtonUp += (_, _) => SetAccent(value, fromHex: false);
+        _swatches.Add((swatch, value));
+        AccentSwatches.Children.Add(swatch);
+    }
+
+    private void SetAccent(string value, bool fromHex)
+    {
+        _accent = value;
+        Accent.Apply(value);
+        MarkSwatch();
+        if (fromHex) return;
+        _updatingHex = true;
+        AccentHex.Text = Accent.Hex;
+        _updatingHex = false;
+    }
+
+    private void MarkSwatch()
+    {
+        var ring = TryFindResource("TextFillColorPrimaryBrush") as Brush ?? Brushes.White;
+        foreach (var (swatch, value) in _swatches)
+        {
+            swatch.BorderBrush = string.Equals(value, _accent, StringComparison.OrdinalIgnoreCase) ? ring : Brushes.Transparent;
+        }
+    }
+
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         string Key(ComboBox b) => b.SelectedValue as string ?? "None";
@@ -407,6 +479,7 @@ public partial class SettingsWindow : Window
         _s.OutputFolder = OutCustom.IsChecked == true ? OutFolder.Text.Trim() : null;
         _s.RevealWhenDone = Reveal.IsChecked == true;
         _s.Language = LanguageBox.SelectedValue as string ?? "auto";
+        _s.AccentColor = _accent;
         _s.KeyConvert = Key(KeyConvert);
         _s.KeyTools = Key(KeyTools);
         _s.KeyActions = Key(KeyActions);
@@ -433,6 +506,7 @@ public partial class SettingsWindow : Window
         _s.ExplorerContextMenu = ContextMenuCheck.IsChecked == true;
         _s.SendToMenu = SendTo.IsChecked == true;
 
+        _saved = true;
         Saved?.Invoke(_s);
         Close();
     }

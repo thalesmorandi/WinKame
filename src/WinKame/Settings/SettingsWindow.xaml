@@ -32,6 +32,16 @@
                         </DockPanel>
                         <CheckBox x:Name="Reveal" Content="{l:T 'Mostrar o resultado no Explorer ao terminar'}" Margin="0,16,0,0" />
                         <TextBlock Text="{l:T 'Os originais nunca são alterados: cada resultado é um arquivo novo.'}" Opacity="0.65" Margin="0,16,0,0" TextWrapping="Wrap" />
+                        <TextBlock Text="{l:T 'Cor de destaque'}" FontWeight="SemiBold" Margin="0,22,0,8" />
+                        <WrapPanel x:Name="AccentSwatches" />
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBox x:Name="AccentHex" Width="110" MaxLength="7" />
+                            <Border CornerRadius="10" Padding="10,4" Margin="14,0,0,0" VerticalAlignment="Center" Background="{DynamicResource AccentBrush}">
+                                <TextBlock Text="PDF" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource OnAccentBrush}" />
+                            </Border>
+                            <ProgressBar Style="{StaticResource SlimProgress}" Width="120" Value="60" Margin="14,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{l:T 'Usada na roda, no cartão de tarefas e na prateleira.'}" Opacity="0.65" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Idioma / Language" FontWeight="SemiBold" Margin="0,22,0,6" />
                         <ComboBox x:Name="LanguageBox" SelectedValuePath="Tag" HorizontalAlignment="Left" MinWidth="260">
                             <ComboBoxItem Content="{l:T 'Automático (idioma do Windows)'}" Tag="auto" />

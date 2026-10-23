@@ -57,7 +57,7 @@ public partial class WheelWindow : Window
     private WpfImage _centerIcon = null!;
 
     private static readonly Brush SliceFill = Brushes.Transparent;
-    private static readonly Brush SliceHover = new LinearGradientBrush(Color.FromRgb(0xFF, 0x9A, 0x3C), Color.FromRgb(0xFF, 0x76, 0x14), 90);
+    private readonly Brush _sliceHover = Accent.SliceHoverBrush();
     private static readonly Brush Divider = new SolidColorBrush(Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF));
 
     public event Action? Finished;
@@ -446,13 +446,13 @@ public partial class WheelWindow : Window
                 row.Children.Add(new TextBlock
                 {
                     Text = DragWatcher.KeyLabel(key), FontSize = 10, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 5, 0),
-                    Foreground = active ? Brushes.White : (Brush)FindResource("TextDimBrush"),
+                    Foreground = active ? (Brush)FindResource("OnAccentBrush") : (Brush)FindResource("TextDimBrush"),
                 });
             }
             row.Children.Add(new TextBlock
             {
                 Text = WheelKinds.Title(kind), FontSize = 10.5,
-                Foreground = active ? Brushes.White : (Brush)FindResource("TextBrush"),
+                Foreground = active ? (Brush)FindResource("OnAccentBrush") : (Brush)FindResource("TextBrush"),
             });
             chip.Child = row;
             if (_clickMode) chip.MouseLeftButtonUp += (_, e) => { e.Handled = true; SwitchKind(kind); };
@@ -479,7 +479,7 @@ public partial class WheelWindow : Window
         if (index == _hover) return;
         if (_hover >= 0 && _hover < _slices.Count) _slices[_hover].Fill = SliceFill;
         _hover = index;
-        if (_hover >= 0 && _hover < _slices.Count) _slices[_hover].Fill = SliceHover;
+        if (_hover >= 0 && _hover < _slices.Count) _slices[_hover].Fill = _sliceHover;
         UpdateCenter();
     }
 

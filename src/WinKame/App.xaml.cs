@@ -51,6 +51,7 @@ public partial class App : Application
         {
             Settings = AppSettings.Load();
             L.Use(Settings.Language);
+            Accent.Apply(Settings.AccentColor);
             ImageEngine.Init();
             _ = Snapshot.RunAsync(e.Args, Settings).ContinueWith(t =>
             {
@@ -85,6 +86,8 @@ public partial class App : Application
         Settings = AppSettings.Load();
         L.Use(Settings.Language);
         Settings.ApplyToEngines();
+        Accent.Apply(Settings.AccentColor);
+        Accent.WatchWindows();
         Pdf.WebViewPrinter.Install();
         JobRunner.RevealWhenDone = Settings.RevealWhenDone;
 
@@ -296,6 +299,7 @@ public partial class App : Application
             Settings = s;
             TrySave(s);
             s.ApplyToEngines();
+            Accent.Apply(s.AccentColor);
             ApplyWatcherSettings();
             JobRunner.RevealWhenDone = s.RevealWhenDone;
         };

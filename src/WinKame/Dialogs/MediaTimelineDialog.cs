@@ -204,7 +204,7 @@ public sealed class MediaTimelineDialog : Window
         double X(TimeSpan t) => Math.Clamp(t.TotalSeconds / total, 0, 1) * w;
         _bar.Children.Add(new Rectangle { Width = w, Height = 6, RadiusX = 3, RadiusY = 3, Fill = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80)) });
         Canvas.SetTop(_bar.Children[^1], 10);
-        var accent = new SolidColorBrush(Color.FromRgb(0xFF, 0x8A, 0x1F));
+        var accent = new SolidColorBrush(Accent.Current);
         if (_mode == Mode.Range && TryRange(out var s, out var e) && e > s)
         {
             var r = new Rectangle { Width = Math.Max(2, X(e) - X(s)), Height = 6, RadiusX = 3, RadiusY = 3, Fill = accent };
@@ -230,7 +230,7 @@ public sealed class MediaTimelineDialog : Window
         byte[]? wave = null;
         if (!info.HasVideo)
         {
-            try { wave = await MediaEngine.WaveformAsync(file, 1400, 240, "#FF8A1F", default); }
+            try { wave = await MediaEngine.WaveformAsync(file, 1400, 240, Accent.Hex, default); }
             catch { /* the slider still works without it */ }
         }
         return (info, wave);

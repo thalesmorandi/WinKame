@@ -7,6 +7,8 @@
         <Color x:Key="AccentColor">#FFFF8A1F</Color>
         <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
         <SolidColorBrush x:Key="AccentSoftBrush" Color="#33FF8A1F" />
+        <!-- Text on top of the accent. These four are replaced by Accent.Apply, so refer to them with DynamicResource. -->
+        <SolidColorBrush x:Key="OnAccentBrush" Color="White" />
         <!-- Opaque on purpose: on transparent windows, translucent fills let the desktop bleed through. -->
         <SolidColorBrush x:Key="SurfaceBrush" Color="#FF1E1E21" />
         <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#FF2B2B2F" />
@@ -35,7 +37,7 @@
                                 <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentSoftBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,7 +53,7 @@
 
         <Style x:Key="SlimProgress" TargetType="ProgressBar">
             <Setter Property="Height" Value="4" />
-            <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
             <Setter Property="Background" Value="#22FFFFFF" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>

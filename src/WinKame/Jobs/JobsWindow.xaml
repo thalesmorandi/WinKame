@@ -24,7 +24,7 @@
                             <StackPanel>
                                 <DockPanel>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding StatusGlyph}" FontFamily="{StaticResource IconFont}" FontSize="13"
-                                               Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
                                     <TextBlock Text="{Binding Title}" Foreground="{StaticResource TextBrush}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
                                 </DockPanel>
                                 <TextBlock Text="{Binding Detail}" Foreground="{StaticResource TextDimBrush}" FontSize="12" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
