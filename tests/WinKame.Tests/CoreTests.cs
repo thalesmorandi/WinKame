@@ -318,6 +318,34 @@ public class OtherFormatTests
     }
 
     [Fact]
+    public void ZipHandlesOpenFilesDuplicatesAndCancel()
+    {
+        using var t = new TempDir();
+        Directory.CreateDirectory(t.File("d1"));
+        Directory.CreateDirectory(t.File("d2"));
+        var one = Path.Combine(t.Path, "d1", "same.txt");
+        var two = Path.Combine(t.Path, "d2", "same.txt");
+        File.WriteAllText(one, "1");
+        File.WriteAllText(two, "2");
+
+        // A file another program keeps open for writing (like a log) still goes in.
+        using (new FileStream(one, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+        {
+            var zip = ArchiveEngine.ZipItems([one, two], null, default);
+            using var z = ZipFile.OpenRead(zip);
+            Assert.Equal(["same.txt", "same (2).txt"], z.Entries.Select(e => e.FullName).ToArray());
+            using var r = new StreamReader(z.GetEntry("same (2).txt")!.Open());
+            Assert.Equal("2", r.ReadToEnd());
+        }
+
+        // A cancelled job leaves no broken ZIP behind.
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+        Assert.ThrowsAny<OperationCanceledException>(() => ArchiveEngine.ZipItems([t.File("d2")], null, cts.Token));
+        Assert.False(File.Exists(t.File("d2.zip")));
+    }
+
+    [Fact]
     public void ZipSlipIsBlocked()
     {
         using var t = new TempDir();

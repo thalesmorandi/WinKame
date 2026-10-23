@@ -60,7 +60,8 @@ public sealed class FormDialog : Window
     private readonly DispatcherTimer _debounce = new() { Interval = TimeSpan.FromMilliseconds(220) };
     private CancellationTokenSource? _previewCts;
     private readonly Func<FormValues, string?>? _validate;
-    private readonly TextBlock _error;
+    // Created up front: fields report changes (and hide this) while they are still being built.
+    private readonly TextBlock _error = new() { Foreground = Brushes.IndianRed, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(24, 0, 24, 0), Visibility = Visibility.Collapsed };
 
     private FormDialog(string title, string? subtitle, IReadOnlyList<Field> fields, string ok,
         Func<FormValues, CancellationToken, Task<byte[]?>>? preview, Func<FormValues, string?>? validate)
@@ -85,7 +86,6 @@ public sealed class FormDialog : Window
         }
         foreach (var f in fields) form.Children.Add(Build(f));
 
-        _error = new TextBlock { Foreground = Brushes.IndianRed, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(24, 0, 24, 0), Visibility = Visibility.Collapsed };
 
         var okButton = new Button { Content = ok, IsDefault = true, MinWidth = 110, Margin = new Thickness(8, 0, 0, 0) };
         if (TryFindResource("AccentButtonStyle") is Style accent) okButton.Style = accent;

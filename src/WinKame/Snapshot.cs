@@ -49,6 +49,18 @@ internal static class Snapshot
                     new NoteField("PNG é reduzido para 256 cores. Os originais não são alterados."),
                 ], "Comprimir");
                 break;
+            case "background":
+                w = FormDialog.Build("Adicionar fundo", Ui.Plural(1, "imagem", "imagens"),
+                [
+                    new ColorField("c1", "Cor", "#FF8A1F"),
+                    new CheckField("grad", "Gradiente", true),
+                    new ColorField("c2", "Segunda cor", "#E5487A"),
+                    new SliderField("pad", "Margem", 0, 40, 10, 1, "%"),
+                ], "Salvar");
+                break;
+            case "crop":
+                w = ImageRegionDialog.BuildCrop(files[0]);
+                break;
             case "jobs":
                 JobRunner.All.Add(new Job { Title = T("Comprimindo imagens"), Detail = T("{0} de {1}", 2, 3) + " · foto.png", Progress = 0.45 });
                 var done = new Job { Title = T("Convertendo para {0}", "PDF"), Detail = "relatorio.pdf", Progress = 1 };

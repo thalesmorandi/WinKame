@@ -31,13 +31,7 @@ public partial class JobsWindow : Window
 
     private void OnJobsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        // Keep the card short.
-        while (JobRunner.All.Count > 5)
-        {
-            var old = JobRunner.All.LastOrDefault(j => j.IsFinished);
-            if (old is null) break;
-            JobRunner.All.Remove(old);
-        }
+        // The list must not be changed from inside this handler; JobRunner.Start keeps it short.
         if (JobRunner.All.Count == 0) Hide();
     }
 

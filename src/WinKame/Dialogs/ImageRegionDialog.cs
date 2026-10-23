@@ -29,6 +29,10 @@ public sealed class ImageRegionDialog : Window
     private Point? _dragStart;
     private Vector _moveOffset;
     private bool _moving;
+    // Edges being dragged when resizing the crop box from a side.
+    private bool _edgeL, _edgeT, _edgeR, _edgeB;
+    private Rect _before;
+    private const double Grip = 9;
 
     private static readonly (string Label, double Ratio)[] Aspects =
     [
@@ -90,7 +94,8 @@ public sealed class ImageRegionDialog : Window
             toolbar.Children.Add(new TextBlock { Text = "×", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0) });
             toolbar.Children.Add(_outH);
             toolbar.Children.Add(_sizeLabel);
-            _current = new Rect(0, 0, dispW, dispH);
+            // Start inset so the box and the dimmed outside are visible and its edges easy to grab.
+            _current = new Rect(dispW * 0.1, dispH * 0.1, dispW * 0.8, dispH * 0.8);
         }
 
         var ok = new Button { Content = redact ? T("Ocultar") : T("Recortar"), IsDefault = true, MinWidth = 110, Margin = new Thickness(8, 0, 0, 0) };
@@ -106,7 +111,11 @@ public sealed class ImageRegionDialog : Window
 
         var root = new StackPanel { Margin = new Thickness(22) };
         root.Children.Add(new TextBlock { Text = Title, FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 2) });
-        root.Children.Add(new TextBlock { Text = System.IO.Path.GetFileName(path) + $" · {imgW}×{imgH}", Opacity = 0.65, Margin = new Thickness(0, 0, 0, 12) });
+        root.Children.Add(new TextBlock { Text = System.IO.Path.GetFileName(path) + $" · {imgW}×{imgH}", Opacity = 0.65, Margin = new Thickness(0, 0, 0, redact ? 12 : 2) });
+        if (!redact)
+        {
+            root.Children.Add(new TextBlock { Text = T("Arraste para marcar a área. Arraste as bordas ou os cantos para ajustar e o meio para mover."), Opacity = 0.65, Margin = new Thickness(0, 0, 0, 12) });
+        }
         root.Children.Add(toolbar);
         root.Children.Add(new Border { Child = _canvas, CornerRadius = new CornerRadius(6), ClipToBounds = true, HorizontalAlignment = HorizontalAlignment.Center });
         root.Children.Add(buttons);
@@ -134,14 +143,29 @@ public sealed class ImageRegionDialog : Window
     {
         var p = e.GetPosition(_canvas);
         _canvas.CaptureMouse();
-        if (!_redact && !_current.IsEmpty && _current.Contains(p))
+        _before = _current;
+        _moving = false;
+        _dragStart = null;
+        _edgeL = _edgeT = _edgeR = _edgeB = false;
+        var (l, t, r, b, inside) = HitTest(p);
+        var corner = (l || r) && (t || b);
+        if ((l || t || r || b) && (corner || CurrentRatio() > 0))
+        {
+            // Corner (or any edge with a fixed ratio): redraw from the opposite corner.
+            if (!corner) { r = r || b; b = r; l = !r; t = !r; }
+            _dragStart = new Point(l ? _current.Right : _current.Left, t ? _current.Bottom : _current.Top);
+        }
+        else if (l || t || r || b)
+        {
+            (_edgeL, _edgeT, _edgeR, _edgeB) = (l, t, r, b);
+        }
+        else if (inside)
         {
             _moving = true;
             _moveOffset = p - _current.TopLeft;
         }
         else
         {
-            _moving = false;
             _dragStart = p;
             _current = new Rect(p, p);
         }
@@ -150,10 +174,23 @@ public sealed class ImageRegionDialog : Window
 
     private void OnMove(object sender, MouseEventArgs e)
     {
-        if (e.LeftButton != MouseButtonState.Pressed) return;
         var p = e.GetPosition(_canvas);
+        if (e.LeftButton != MouseButtonState.Pressed)
+        {
+            _canvas.Cursor = CursorFor(p);
+            return;
+        }
         var bounds = new Rect(0, 0, _canvas.Width, _canvas.Height);
-        if (_moving)
+        if (_edgeL || _edgeT || _edgeR || _edgeB)
+        {
+            p = new Point(Math.Clamp(p.X, 0, bounds.Width), Math.Clamp(p.Y, 0, bounds.Height));
+            var x1 = _edgeL ? p.X : _before.Left;
+            var x2 = _edgeR ? p.X : _before.Right;
+            var y1 = _edgeT ? p.Y : _before.Top;
+            var y2 = _edgeB ? p.Y : _before.Bottom;
+            _current = new Rect(new Point(Math.Min(x1, x2), Math.Min(y1, y2)), new Point(Math.Max(x1, x2), Math.Max(y1, y2)));
+        }
+        else if (_moving)
         {
             var x = Math.Clamp(p.X - _moveOffset.X, 0, bounds.Width - _current.Width);
             var y = Math.Clamp(p.Y - _moveOffset.Y, 0, bounds.Height - _current.Height);
@@ -182,12 +219,39 @@ public sealed class ImageRegionDialog : Window
         _canvas.ReleaseMouseCapture();
         _dragStart = null;
         _moving = false;
+        _edgeL = _edgeT = _edgeR = _edgeB = false;
+        // A plain click (no drag) keeps the previous crop box.
+        if (!_redact && (_current.IsEmpty || _current.Width < 4 || _current.Height < 4)) _current = _before;
         if (_redact && !_current.IsEmpty && _current.Width > 3 && _current.Height > 3)
         {
             _redactions.Add(_current);
             _current = Rect.Empty;
         }
         Redraw();
+    }
+
+    /// <summary>Which edges of the crop box are under the pointer, and whether it is inside.</summary>
+    private (bool L, bool T, bool R, bool B, bool Inside) HitTest(Point p)
+    {
+        if (_redact || _current.IsEmpty) return default;
+        var c = _current;
+        var nearX = p.X >= c.Left - Grip && p.X <= c.Right + Grip;
+        var nearY = p.Y >= c.Top - Grip && p.Y <= c.Bottom + Grip;
+        var l = nearY && Math.Abs(p.X - c.Left) <= Grip;
+        var r = nearY && !l && Math.Abs(p.X - c.Right) <= Grip;
+        var t = nearX && Math.Abs(p.Y - c.Top) <= Grip;
+        var b = nearX && !t && Math.Abs(p.Y - c.Bottom) <= Grip;
+        return (l, t, r, b, c.Contains(p));
+    }
+
+    private Cursor CursorFor(Point p)
+    {
+        var (l, t, r, b, inside) = HitTest(p);
+        if ((l && t) || (r && b)) return Cursors.SizeNWSE;
+        if ((r && t) || (l && b)) return Cursors.SizeNESW;
+        if (l || r) return Cursors.SizeWE;
+        if (t || b) return Cursors.SizeNS;
+        return inside ? Cursors.SizeAll : Cursors.Cross;
     }
 
     private void Redraw()
@@ -244,6 +308,13 @@ public sealed class ImageRegionDialog : Window
         var h = (int)img.Height;
         if (img.Width > 1400 || img.Height > 1400) img.Thumbnail(1400, 1400);
         return (ImageEngine.ToPng(img), w, h);
+    }
+
+    /// <summary>Builds the crop window without showing it (used by --snapshot).</summary>
+    internal static Window BuildCrop(string path)
+    {
+        var (png, w, h) = LoadPreview(path);
+        return new ImageRegionDialog(path, false, png, w, h);
     }
 
     public static (PixelRect Rect, int OutWidth, int OutHeight)? Crop(string path)

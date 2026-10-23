@@ -135,37 +135,74 @@ public static class ArchiveEngine
         var name = items.Count == 1 ? OutputPaths.StemOf(items[0]) : T("Arquivos");
         var outPath = OutputPaths.Unique(OutputPaths.DirFor(items[0]), name, "zip");
         var files = new List<(string Path, string Entry)>();
-        foreach (var item in items)
+        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // Skips folders we may not read (e.g. the "My Videos" junction inside Documents) instead of failing.
+        var walk = new EnumerationOptions
         {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.None,
+        };
+        foreach (var raw in items)
+        {
+            var item = Path.GetFullPath(raw).TrimEnd(Path.DirectorySeparatorChar);
             if (Directory.Exists(item))
             {
-                var baseName = Path.GetFileName(item.TrimEnd(Path.DirectorySeparatorChar));
+                var baseName = UniqueEntry(used, Path.GetFileName(item) is { Length: > 0 } n ? n : T("Disco"));
                 var any = false;
-                foreach (var f in Directory.EnumerateFiles(item, "*", SearchOption.AllDirectories))
+                foreach (var f in Directory.EnumerateFiles(item, "*", walk))
                 {
-                    files.Add((f, Path.Combine(baseName, Path.GetRelativePath(item, f)).Replace('\\', '/')));
+                    files.Add((f, (baseName + "/" + Path.GetRelativePath(item, f)).Replace('\\', '/')));
                     any = true;
                 }
                 if (!any) files.Add((item, baseName + "/"));
             }
             else
             {
-                files.Add((item, Path.GetFileName(item)));
+                // Two "foto.jpg" from different folders become "foto.jpg" and "foto (2).jpg".
+                files.Add((item, UniqueEntry(used, Path.GetFileName(item))));
             }
         }
 
-        using (var zip = ZipFile.Open(outPath, ZipArchiveMode.Create))
+        try
         {
+            using var zip = ZipFile.Open(outPath, ZipArchiveMode.Create);
             for (var i = 0; i < files.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
                 var (path, entry) = files[i];
                 if (entry.EndsWith('/')) zip.CreateEntry(entry);
-                else zip.CreateEntryFromFile(path, entry, CompressionLevel.Optimal);
+                else AddFile(zip, path, entry, ct);
                 progress?.Report((i + 1) / (double)files.Count);
             }
         }
+        catch
+        {
+            // Never leave a half-written ZIP behind.
+            OutputPaths.TryDelete(outPath);
+            throw;
+        }
         return outPath;
+    }
+
+    static string UniqueEntry(HashSet<string> used, string name)
+    {
+        var stem = Path.GetFileNameWithoutExtension(name);
+        var ext = Path.GetExtension(name);
+        var candidate = name;
+        for (var i = 2; !used.Add(candidate); i++) candidate = $"{stem} ({i}){ext}";
+        return candidate;
+    }
+
+    /// <summary>Like CreateEntryFromFile, but also reads files another program has open (logs, open spreadsheets).</summary>
+    static void AddFile(ZipArchive zip, string path, string entryName, CancellationToken ct)
+    {
+        using var src = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 81920);
+        var entry = zip.CreateEntry(entryName, CompressionLevel.Optimal);
+        var time = File.GetLastWriteTime(path);
+        entry.LastWriteTime = time.Year is < 1980 or > 2107 ? new DateTime(1980, 1, 1) : time;
+        using var dst = entry.Open();
+        src.CopyToAsync(dst, ct).GetAwaiter().GetResult();
     }
 
     public static void PackDirectory(string sourceDir, string target, string outPath)

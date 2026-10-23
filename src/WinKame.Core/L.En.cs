@@ -35,6 +35,7 @@ public static partial class L
         ["conteúdo"] = "contents",
         ["cópia"] = "copy",
         ["Arquivos"] = "Files",
+        ["Disco"] = "Drive",
         ["Colagem"] = "Collage",
 
         // ---------- units and words used in counts ----------
@@ -357,6 +358,7 @@ public static partial class L
         ["Gerar"] = "Generate",
         ["Livre"] = "Free",
         ["Ocultar áreas"] = "Redact areas",
+        ["Arraste para marcar a área. Arraste as bordas ou os cantos para ajustar e o meio para mover."] = "Drag to mark the area. Drag the edges or corners to adjust it, and the middle to move it.",
         ["Recortar imagem"] = "Crop image",
         ["Cobrir com"] = "Cover with",
         ["Pixelado"] = "Pixelate",

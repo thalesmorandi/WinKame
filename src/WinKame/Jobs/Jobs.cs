@@ -118,6 +118,7 @@ public sealed class JobContext(Job job)
 public static class JobRunner
 {
     public static ObservableCollection<Job> All { get; } = [];
+    private const int MaxShown = 5;
 
     public static event Action<Job>? Started;
     public static event Action<Job>? Completed;
@@ -129,6 +130,8 @@ public static class JobRunner
     {
         var job = new Job { Title = T(title) };
         var ctx = new JobContext(job);
+        // Keep the jobs card short: drop the oldest finished jobs first.
+        while (All.Count >= MaxShown && All.LastOrDefault(j => j.IsFinished) is { } old) All.Remove(old);
         All.Insert(0, job);
         Started?.Invoke(job);
 
