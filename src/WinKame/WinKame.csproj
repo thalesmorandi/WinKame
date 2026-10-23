@@ -16,7 +16,7 @@
     <RootNamespace>WinKame</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\WinKame.ico</ApplicationIcon>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>WinKame</Product>
     <Description>Conversor de arquivos offline com roda de ações ao arrastar.</Description>
     <!-- WPF's Fluent theme (ThemeMode) is marked experimental in .NET 9. -->
